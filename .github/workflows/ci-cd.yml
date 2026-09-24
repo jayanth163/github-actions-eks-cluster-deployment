@@ -20,3 +20,8 @@ jobs:
     - name: Build with Maven
       run: mvn --version
 
+    - name: Install nginx and start the service
+      run: sudo apt install nginx -y
+
+    - name: get the content
+      run: curl -i http://localhost:80
