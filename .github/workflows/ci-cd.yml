@@ -22,6 +22,7 @@ jobs:
 
     - name: Install nginx and start the service
       run: sudo apt install nginx -y
+      run: sudo systemctl start nginx
 
     - name: get the content
       run: curl -i http://localhost:80
