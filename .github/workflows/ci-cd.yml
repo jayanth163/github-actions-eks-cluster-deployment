@@ -2,33 +2,37 @@ name: Ci/Cd build
 
 on:
   push:
-    branches: [ "master" ]
- 
+    branches: ["master"]
+
 jobs:
   build:
-  
     runs-on: self-hosted
- 
+
     steps:
-    - uses: actions/checkout@v4
-    - name: Set up JDK 17
-      uses: actions/setup-java@v4
-      with:
-        java-version: '17'
-        distribution: 'temurin'
-        cache: maven
-    - name: Build with Maven
-      run: mvn --version
-      
-  install:
-  
+      - uses: actions/checkout@v4
+
+      - name: Application Build
+        run: mvn clean package
+
+  docker:
     runs-on: self-hosted
     needs: build
-    steps:
-    - name: Install nginx and start the service
-      run: sudo apt install nginx -y
 
-    - name: start the service 
-      run: sudo systemctl start nginx
-    - name: get the content
-      run: curl -i http://localhost:80
+    steps:
+      - name: Login to Docker Hub
+        uses: docker/login-action@v4
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Build and push
+        uses: docker/build-push-action@v7
+        with:
+          push: true
+          tags: jayanth16316/java_app:latest
